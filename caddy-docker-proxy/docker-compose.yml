@@ -1,0 +1,23 @@
+services:
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy:ci-alpine
+    container_name: caddy-docker-proxy
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - CADDY_INGRESS_NETWORKS=caddy
+    networks:
+      - caddy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./caddy_data:/data
+      # Nextcloud
+      - $DOCKERDIR/nextcloud/nextcloud_data/:/nextcloud/var/www/html
+networks:
+  caddy:
+    external: true
+volumes:
+  caddy_data:
+    external: true
