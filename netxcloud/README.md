@@ -46,7 +46,7 @@ Insert this:
 ```
 'trusted_proxies' =>
    array (
-      0 => gethostbyname('nginx_container_name'),
+      0 => gethostbyname('caddy-docker-proxy_container_name'),
    ),
 ```
 
