@@ -63,3 +63,8 @@ This should be safely ignored, as this is highly debatable if it is worth fixing
 Source: [SVG imagemagick Nextcloud 21.0 Docker · Issue #1414 · nextcloud/docker (github.com)](https://github.com/nextcloud/docker/issues/1414)
 
 If you did everything right, the Nextcloud should be running safe and sound.
+
+**TO DO:**
+ - Polish this README
+ - Write more text
+ - Make more fine tuning in the compose file (docker secrets, .env variables)
