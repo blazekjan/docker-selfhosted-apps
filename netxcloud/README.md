@@ -38,7 +38,7 @@ Nextcloud will most likely throw few warnings, which should be quite easy to res
 
 *"The reverse proxy header configuration is incorrect, or you are accessing Nextcloud from a trusted proxy. If not, this is a security issue and can allow an attacker to spoof their IP address as visible to the Nextcloud. Further information can be found in the documentation."*
 
-Edit the **config.php**
+Edit the **config.php** located here:
 ```
 ~/docker/nextcloud/nextcloud_data/config
 ```
