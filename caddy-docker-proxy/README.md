@@ -17,6 +17,6 @@ Create a **new network**, name it for example **caddy**:
 
     $ docker network create caddy
 
-Use **compose.yaml** config and bring it up with:
-
-	$ docker compose up -d
+Copy .env file, **compose.yaml** config and bring it up with:
+	
+    $ docker compose up -d
