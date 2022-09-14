@@ -1,0 +1,82 @@
+services:
+  nextcloud-db:
+    image: postgres:14.5-alpine
+    container_name: nextcloud-db
+    restart: unless-stopped
+    networks:
+      - caddy
+    volumes:
+      - ./nextcloud_db:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      POSTGRES_USER: # fill the database user eg. nextcloud
+      POSTGRES_PASSWORD: # fill the database password
+
+  nextcloud-cache:
+    image: redis:7.0.4-alpine
+    container_name: nextcloud-cache
+    restart: unless-stopped
+    networks:
+      - caddy
+    command: redis-server --requirepass redis_password #change the password to whatever you want 
+
+  nextcloud-app:
+    image: nextcloud:stable-fpm-alpine
+    container_name: nextcloud-app
+    restart: unless-stopped
+    networks:
+      - caddy
+    volumes:
+      - ./nextcloud_data/:/var/www/html  
+    depends_on:
+      - nextcloud-db
+      - nextcloud-cache
+    environment:
+      POSTGRES_DB: nextcloud
+      POSTGRES_USER: # fill the database user eg. nextcloud
+      POSTGRES_PASSWORD: # fill the database password
+      POSTGRES_HOST: nextcloud-db
+      NEXTCLOUD_ADMIN_USER: # fill the user eg. admin
+      NEXTCLOUD_ADMIN_PASSWORD: # fill the admin password
+      NEXTCLOUD_TRUSTED_DOMAINS: # fill the domain you are accessing from eg. nextcloud.mydomain.com
+      REDIS_HOST: nextcloud-cache
+      REDIS_HOST_PASSWORD: # fill the redis password
+      SMTP_HOST: smtp.sendgrid.net
+      SMTP_SECURE: tls
+      SMTP_PORT: 587
+      SMTP_AUTHTYPE: PLAIN
+      SMTP_NAME: apikey # this is for SendGrid
+      SMTP_PASSWORD: # if using SendGrid, fill API key here which starts with SG.
+      MAIL_FROM_ADDRESS: no-reply
+      MAIL_DOMAIN: # fill your domain here eg. mydomain.com
+    labels:
+      caddy: # fill your domain here eg. nextcloud.mydomain.com
+      caddy.tls: # fill your email here
+      caddy.file_server: ""
+      caddy.root: "* /nextcloud/var/www/html"
+      caddy.php_fastcgi: "{{upstreams 9000}}"
+      caddy.php_fastcgi.root: "/var/www/html"
+      caddy.php_fastcgi.env: "front_controller_active true"
+      caddy.encode: gzip
+      caddy.header: /*
+      caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
+      caddy.redir_0: "/.well-known/carddav /remote.php/dav"
+      caddy.redir_1: "/.well-known/caldav /remote.php/dav"
+      caddy.@forbidden.path: "/.htaccess /data/* /config/* /db_structure /.xml /README /3rdparty/* /lib/* /templates/* /occ /console.php"
+      caddy.respond: "@forbidden 403"
+
+  nextcloud-cron:
+    image: nextcloud:stable-fpm-alpine
+    container_name: nextcloud-cron
+    restart: always
+    volumes:
+      - ./nextcloud_data:/var/www/html
+    networks:
+      - caddy
+    entrypoint: /cron.sh
+    depends_on:
+      - nextcloud-db
+
+networks:
+  caddy:
+    external: true
